@@ -14,6 +14,7 @@ int col_idx = 0;
 bool first_entry = true;
 bool object_started = false;
 bool first_field_in_object = true;
+bool array_started = false;
 
 void start_object_if_needed() {
     if (!object_started) {
@@ -59,6 +60,7 @@ TEXT_DATA [^,\n\r]+
 <INITIAL>\r?\n {
     /* Headers done. Open array, switch to data mode. */
     cout << "[";
+    array_started = true;
     BEGIN(JSON_MODE);
 }
 
@@ -104,6 +106,12 @@ int main(int argc, char** argv) {
         cout << "\n\t}";
     }
     
-    cout << "\n]\n"; // Close the array
+    /* If the file csv was blank (no data), we don't close the array (it was never opened), we just output an empty array */
+    if (array_started) {
+        cout << "\n]\n"; // Close the array
+    }
+    else{
+        cout << "[]\n"; // Output empty array
+    }
     return 0;
 }
